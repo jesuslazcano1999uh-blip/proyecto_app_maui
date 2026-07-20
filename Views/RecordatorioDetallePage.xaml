@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Recordatorios.ViewModels"
+             x:Class="Recordatorios.Views.RecordatorioDetallePage"
+             x:DataType="vm:RecordatorioDetalleViewModel"
+             Title="Detalle de Recordatorio">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="15" Padding="20">
+            <Label Text="Título:" FontAttributes="Bold" />
+            <Entry Text="{Binding Titulo}" Placeholder="Escribe el título" />
+
+            <Label Text="Descripción:" FontAttributes="Bold" />
+            <Editor Text="{Binding Descripcion}" Placeholder="Escribe la descripción" HeightRequest="100" />
+
+            <Label Text="Fecha:" FontAttributes="Bold" />
+            <DatePicker Date="{Binding FechaRecordatorio}" />
+
+            <Button Text="Guardar" Command="{Binding GuardarCommand}" Margin="0,20,0,0" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
