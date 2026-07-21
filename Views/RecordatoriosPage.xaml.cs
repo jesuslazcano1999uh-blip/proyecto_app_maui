@@ -1,21 +1,25 @@
 using Recordatorios.ViewModels;
 
-namespace Recordatorios.Views
+namespace Recordatorios.Views;
+
+public partial class RecordatoriosPage : ContentPage
 {
-    public partial class RecordatoriosPage : ContentPage
+    private readonly RecordatoriosViewModel _viewModel;
+
+    public RecordatoriosPage(RecordatoriosViewModel viewModel)
     {
-        private readonly RecordatoriosViewModel _viewModel;
+        InitializeComponent();
+        BindingContext = _viewModel = viewModel;
+    }
 
-        public RecordatoriosPage(RecordatoriosViewModel viewModel)
-        {
-            InitializeComponent();
-            BindingContext = _viewModel = viewModel;
-        }
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
 
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-            await _viewModel.CargarRecordatoriosCommand.ExecuteAsync(null);
-        }
+        // Dejamos esto comentado temporalmente para que no busque nada en la API todavía
+        // if (_viewModel != null)
+        // {
+        //     await _viewModel.CargarRecordatoriosAsync();
+        // }
     }
 }

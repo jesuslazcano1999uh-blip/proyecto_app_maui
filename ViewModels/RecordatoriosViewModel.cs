@@ -10,15 +10,17 @@ namespace Recordatorios.ViewModels
     public partial class RecordatoriosViewModel : ObservableObject
     {
         private readonly ApiService _apiService;
+        private readonly IServiceProvider _serviceProvider;
 
         [ObservableProperty]
         private bool estaCargando;
 
         public ObservableCollection<Recordatorio> Recordatorios { get; } = new();
 
-        public RecordatoriosViewModel(ApiService apiService)
+        public RecordatoriosViewModel(ApiService apiService, IServiceProvider serviceProvider)
         {
             _apiService = apiService;
+            _serviceProvider = serviceProvider;
         }
 
         [RelayCommand]
@@ -29,16 +31,27 @@ namespace Recordatorios.ViewModels
             try
             {
                 EstaCargando = true;
-                var lista = await _apiService.ObtenerRecordatoriosAsync();
-                Recordatorios.Clear();
-                foreach (var item in lista)
+
+                if (_apiService != null)
                 {
-                    Recordatorios.Add(item);
+                    var lista = await _apiService.ObtenerRecordatoriosAsync();
+                    Recordatorios.Clear();
+
+                    if (lista != null)
+                    {
+                        foreach (var item in lista)
+                        {
+                            Recordatorios.Add(item);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
-                await Shell.Current.DisplayAlert("Error", $"No se pudieron cargar los datos: {ex.Message}", "OK");
+                if (Application.Current?.MainPage != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", $"No se pudieron cargar los datos: {ex.Message}", "OK");
+                }
             }
             finally
             {
@@ -49,14 +62,23 @@ namespace Recordatorios.ViewModels
         [RelayCommand]
         private async Task IrANuevoAsync()
         {
-            await Shell.Current.GoToAsync(nameof(RecordatorioDetallePage));
+            if (Application.Current?.MainPage?.Navigation != null && _serviceProvider != null)
+            {
+                var detallePage = _serviceProvider.GetService<RecordatorioDetallePage>();
+                await Application.Current.MainPage.Navigation.PushAsync(detallePage);
+            }
         }
 
         [RelayCommand]
         private async Task IrADetalleAsync(Recordatorio recordatorio)
         {
             if (recordatorio == null) return;
-            await Shell.Current.GoToAsync($"{nameof(RecordatorioDetallePage)}?Id={recordatorio.Id}");
+
+            if (Application.Current?.MainPage?.Navigation != null && _serviceProvider != null)
+            {
+                var detallePage = _serviceProvider.GetService<RecordatorioDetallePage>();
+                await Application.Current.MainPage.Navigation.PushAsync(detallePage);
+            }
         }
 
         [RelayCommand]
@@ -64,7 +86,12 @@ namespace Recordatorios.ViewModels
         {
             if (recordatorio == null) return;
 
-            bool confirmar = await Shell.Current.DisplayAlert("Confirmar", $"¿Deseas eliminar el recordatorio '{recordatorio.Titulo}'?", "Sí", "No");
+            bool confirmar = false;
+            if (Application.Current?.MainPage != null)
+            {
+                confirmar = await Application.Current.MainPage.DisplayAlert("Confirmar", $"¿Deseas eliminar el recordatorio '{recordatorio.Titulo}'?", "Sí", "No");
+            }
+
             if (confirmar)
             {
                 bool exito = await _apiService.EliminarRecordatorioAsync(recordatorio.Id);
@@ -74,7 +101,10 @@ namespace Recordatorios.ViewModels
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Error", "No se pudo eliminar el registro en la API.", "OK");
+                    if (Application.Current?.MainPage != null)
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Error", "No se pudo eliminar el registro en la API.", "OK");
+                    }
                 }
             }
         }
