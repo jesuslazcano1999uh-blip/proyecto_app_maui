@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!--
+===========================================================
+Autor: Moi
+Materia: Diseño y Desarrollo de Aplicaciones Móviles
+Proyecto: Aplicación de Recordatorios
+Archivo: RecordatoriosPage.xaml
+
+Descripción:
+Pantalla principal donde se visualizan los recordatorios
+registrados por el usuario.
+===========================================================
+-->
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Recordatorios.ViewModels"
+             xmlns:models="clr-namespace:Recordatorios.Models"
+             x:Class="VOX3.Views.RecordatoriosPage"
+             x:DataType="vm:RecordatoriosViewModel"
+             Title="Mis Recordatorios">
+
+    <!-- Barra de herramientas -->
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Nuevo" Command="{Binding IrANuevoCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <!-- Contenedor principal -->
+    <Grid RowDefinitions="Auto,*" Padding="10">
+
+        <!-- Indicador de carga -->
+        <ActivityIndicator Grid.Row="0"
+                           IsRunning="{Binding EstaCargando}"
+                           IsVisible="{Binding EstaCargando}" />
+
+        <!-- Vista con actualización mediante deslizamiento -->
+        <RefreshView Grid.Row="1"
+                     Command="{Binding CargarRecordatoriosCommand}"
+                     IsRefreshing="{Binding EstaCargando}">
+
+            <!-- Lista de recordatorios -->
+            <CollectionView ItemsSource="{Binding Recordatorios}"
+                            SelectionMode="None">
+
+                <!-- Vista cuando no existen registros -->
+                <CollectionView.EmptyView>
+                    <Label Text="{Binding MensajeVacio}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           FontSize="16"
+                           TextColor="Gray" />
+                </CollectionView.EmptyView>
+
+                <!-- Plantilla para cada recordatorio -->
+                <CollectionView.ItemTemplate>
+
+                    <DataTemplate x:DataType="models:Recordatorio">
+
+                        <Frame Margin="0,4,0,4"
+                               Padding="10"
+                               BackgroundColor="{Binding ColorPrioridad}">
+
+                            <Grid ColumnDefinitions="*,Auto">
+
+                                <!-- Información del recordatorio -->
+                                <VerticalStackLayout Grid.Column="0">
+
+                                    <Label Text="{Binding Titulo}"
+                                           FontAttributes="Bold"
+                                           FontSize="16" />
+
+                                    <Label Text="{Binding Descripcion}"
+                                           FontSize="12"
+                                           TextColor="DarkGray" />
+
+                                    <Label Text="{Binding FechaHora, StringFormat='dd/MM/yyyy HH:mm'}"
+                                           FontSize="12"
+                                           TextColor="DimGray" />
+
+                                </VerticalStackLayout>
+
+                                <!-- Botones de acción -->
+                                <HorizontalStackLayout Grid.Column="1"
+                                                       Spacing="5"
+                                                       VerticalOptions="Center">
+
+                                    <Button Text="Editar"
+                                            BackgroundColor="Transparent"
+                                            TextColor="Blue"
+                                            FontSize="12" />
+
+                                    <Button Text="Eliminar"
+                                            BackgroundColor="Transparent"
+                                            TextColor="Red"
+                                            FontSize="12" />
+
+                                </HorizontalStackLayout>
+
+                            </Grid>
+
+                        </Frame>
+
+                    </DataTemplate>
+
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+        </RefreshView>
+
+    </Grid>
+
+</ContentPage>
